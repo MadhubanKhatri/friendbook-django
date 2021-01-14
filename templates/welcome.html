@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Welcome to FriendBook	
+{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid text-center">
+	<div class="card bg-dark text-white">
+		<img src="{% static 'img1.jpg' %}" class="card-img" alt="..." style="height: 400px; opacity: 0.5;">
+		<div class="card-img-overlay" style="margin-top: 100px;">
+			<h1 class="card-title" style="text-shadow: 2px 5px black; font-size: 50px;">Welcome to <span style="color: dodgerblue;">FriendBook</span></h1>
+			<p class="card-text" style="font-size: 20px; text-shadow: 2px 2px black;">Find your Family, Relatives, Friends and Make your Connection here</p>
+
+		</div>
+	</div>
+</div>
+
+
+<div class="container my-4">
+	<div class="row">
+		<div class="col-5 alert alert-success mx-2 my-3">
+			<h4>Login</h4>
+			<form action="{% url 'user_login' %}" method="post">
+				{% csrf_token %}
+				<div class="mb-3">
+					<label for="exampleFormControlInput1" class="form-label">Username</label>
+					<input type="text" name="uname" class="form-control" id="exampleFormControlInput" required>
+				</div>
+				<div class="mb-3">
+					<label for="exampleFormControlPassword" class="form-label">Password</label>
+					<input type="password" name="pwd" class="form-control" name="" id="exampleFormControlPassword" required>
+				</div>
+				<input type="submit" name="" value="Login" class="btn btn-outline-success">
+			</form>
+		</div>
+
+		<div class="col-6 alert alert-info my-3">
+			<h4>Signup</h4>
+			<form action="{% url 'user_signup' %}" method="post">
+				{% csrf_token %}
+				<div class="mb-3">
+					<label for="exampleFormControlInput1" class="form-label">Full Name</label>
+					<input type="text" class="form-control" name="fname" id="exampleFormControlInput" required>
+				</div>
+				<div class="mb-3">
+					<label for="exampleFormControlInput1" class="form-label">Username</label>
+					<input type="text" class="form-control" name="uname" id="exampleFormControlInput" required>
+				</div>
+				<div class="mb-3">
+					<label for="exampleFormControlEmail" class="form-label">Email</label>
+					<input type="email" class="form-control" name="mail" id="exampleFormControlEmail" required>
+				</div>
+				<div class="mb-3">
+					<label for="exampleFormControlPassword" class="form-label">Password</label>
+					<input type="password" class="form-control" name="pwd" name="" id="exampleFormControlPassword" required>
+				</div>
+				<input type="submit" value="Signup" class="btn btn-primary">
+			</form>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+
+
+{% endblock %}

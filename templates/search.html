@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+{% block title %}Search Results{% endblock %}
+
+{% block body %}
+	
+	<div class="contaiiner w-50 mx-4 my-4">
+		<h1>Search Results: </h1>
+		{% for result in results %}
+			<div class="card my-4 border border-success  text-center">
+				<div class="row">
+					<div class="col-3 mx-4">
+						<img src="{% static result.profile_pic.url %}" class="img-thumbnail mx-4 w-50" style="border-radius: 50%;">
+					</div>
+					<div class="col-6">
+						<h3 class="card-title my-3"><a href="{% url 'profile' result.user_name %}" style="text-decoration: none; float: left;">{{result.user_name}}</a></h3>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+		
+	</div>
+
+
+{% endblock %}

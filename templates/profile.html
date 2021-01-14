@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+
+{% block body %}
+<div class="container-fluid my-4">
+	<div class="row">
+		<div class="col-4 mx-2 bg-light text-dark">
+			<div class="row">
+				<div class="col">
+					<div class="container my-3 text-center">
+						{% if user_data.profile_pic %}
+						<img src="{% static user_data.profile_pic.url %}" class="w-25" style="float: left;">
+						{% endif %}
+						<h3 class="text-center">{{user_data.full_name}}</h3>
+						<b class="mx-4 text-center"><span style="text-decoration: none;"><span id="follower_count">{{followers_count}}</span> Followers</span></b>
+						&nbsp &nbsp &nbsp
+						<b class="text-center"><span href="" style="text-decoration: none;">{{following_count}} Following</span></b>
+						<br>
+						{% if user_data.user_name != request.session.user %}					
+						<button class="btn btn-outline-primary" id="follow_btn">
+							{% if is_followed %}
+								Unfollow
+							{% else %}
+								Follow
+							{% endif %}
+						</button>
+						{% endif %}
+						        
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<b class="mx-4">Bio: </b>
+					<pre><p class="mx-4">{{user_data.bio}}</p></pre>
+				</div>
+			</div>
+			<hr>
+			<div class="container-fluid">
+				<span class="text-muted">Email: </span>{{user_data.email}}
+				<br>
+				<span class="text-muted">Date Joined: </span>{{user_data.date_joined}}
+				<br>
+			</div>
+			<hr>
+
+			{% if user_data.user_name == request.session.user %}
+			<button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#editModal">Edit Profile</button>
+			{% endif %}
+		</div>
+
+
+		<!--Edit Profile Modal-->   
+		<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Edit Profile</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form action="{% url 'update_profile' %}" method="post" enctype="multipart/form-data">
+							{% csrf_token %}
+							<div class="mb-2">
+								<div class="row">
+									<div class="col-7">
+										<label for="imgSection" class="form-label"><b>Choose Image</b></label>
+										<input type="file" name="new_img" class="form-control" id="imgSection">
+									</div>
+									<div class="col">
+										<h6>Current Image</h6>
+										<img src="{% static user_data.profile_pic.url %}" class="w-50">
+									</div>
+								</div>
+							</div>
+							<div class="mb-2">
+								<label for="emailSection" class="form-label"><b>Email</b></label>
+								<input type="email" name="mail" class="form-control" id="emailSection" value="{{user_data.email}}">
+							</div>
+							<div class="mb-2">
+								<label for="bioSection" class="form-label"><b>Bio (<span id="bio_len">0</span>/150)</b></label>
+								<textarea class="form-control" name="bio" id="bio">{{user_data.bio}}</textarea>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+								<button type="submit" class="btn btn-primary" id="update_btn">Update</button>
+							</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+
+		<div class="col-7 mx-2">
+			<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+				<li class="nav-item" role="presentation">
+					<a class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">List View</a>
+				</li>
+				<li class="nav-item" role="presentation">
+					<a class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Grid View</a>
+				</li>
+			</ul>
+
+			<hr>
+			<div class="tab-content" id="pills-tabContent">
+				<!--List View-->
+				<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+					{% if posts %}
+					{% for post in posts %}
+					<div class="card border-success bg-light text-dark" id="div{{post.id}}" style="width: 31rem;">
+						<img src="{% static post.img.url %}" class="card-img-top" alt="..." style="">
+						<div class="card-body">
+							<p class="card-text">{{post.desc}}</p>
+							<button class="btn btn-primary like_btn" id="{{post.id}}"><span id="list_likes_count{{post.id}}">{{post.likes.count}}</span> <span id="sign{{post.id}}">
+								{% if user_data in post.likes.all %}
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+								{% else %}
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16"><path d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/></svg>
+								{% endif %}
+
+								</span></button>
+								<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal{{post.id}}"><span id="comment_count{{post.id}}">{{post.comment_set.count}}</span> Comment</button>
+
+								{% if user_data.user_name == request.session.user %}
+									<button class="btn btn-danger del_btn" id="delete{{post.id}}" style="float: right;">Delete</button>
+								{% endif %}
+								<br>
+								<span class="text-muted">{{post.pub_date}}</span>
+							</div>
+						</div>
+						<hr>
+						<!--Comment Modal-->   
+						<div class="modal fade" id="exampleModal{{post.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-scrollable">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title" id="exampleModalLabel">Public Comments</h5>
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div class="modal-body">
+										<div class="mb-2">
+											<form id="comment_form{{post.id}}">
+												<input type="text" class="form-control" placeholder="Add Comment..." id="comment_box{{post.id}}">
+											</form>
+										</div>
+										<div class="mb-3">
+											<div class="container" id="comment_container{{post.id}}">
+												{% for comment in post.comment_set.all %}
+
+												<b>
+													{{comment.user}}
+												</b>
+												<p>
+													{{comment.comment}}
+												</p>
+
+												{% endfor %}
+											</div>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+										<button type="button" class="btn btn-primary comment_btn" id="{{post.id}}">Add Comment</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+						{% else %}
+						<div class="card text-center">
+							<h1>No Posts Yet.</h1>							
+						</div>
+						{% endif %}
+
+					</div>
+
+
+
+					<!--Grid View-->
+					<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+						{% if posts %}
+						<div class="row row-cols-1 row-cols-md-3 g-4">
+							
+							{% for post in posts %}
+							<div class="col">
+								<div class="card" id="card{{post.id}}">
+									<img src="{% static post.img.url %}" class="card-img-top" alt="...">
+									<div class="card-body">
+										<p class="card-text">{{post.desc}}</p>
+										<p><b>
+
+											<span id="grid_likes_count{{post.id}}">{{post.likes.count}}</span>
+										Likes</b></p>
+										<p><b>
+											<span id="grid_comments_count{{post.id}}">{{post.comment_set.count}}</span>
+										Comments</b></p>
+										<span class="text-muted">{{post.pub_date}}</span>
+										
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+						{% else %}
+						<div class="card text-center">
+							<h1>No Posts Yet.</h1>
+						</div>
+						{% endif %}
+
+
+					</div>
+				</div>
+
+
+			</div>
+
+		</div>
+	</div>
+
+	
+	<script type="text/javascript">
+	// Limit The Length of User Bio
+	var bio = $('#bio');
+	bio.on('input', function(){
+		var bio_len = $('#bio_len');
+		var text_length = bio.val().length;
+		if(text_length>150)
+		{
+			bio_len.text(text_length);
+			$('#bio_len').css('color', 'red');
+			document.getElementById('update_btn').disabled = true;
+			
+		}
+		else
+		{
+			bio_len.text(text_length);
+			$('#bio_len').css('color', 'black');
+			document.getElementById('update_btn').disabled = false;
+		}
+		
+	});
+	</script>
+
+
+	<script type="text/javascript">
+	// Add Likes
+	var like_btn = $('.like_btn');
+	var list_likes_count = $('#likes_count');
+	
+	like_btn.on('click', function(event){
+		event.preventDefault();
+		var t = this;
+		$.ajax({
+			url: '{% url "add_like" %}',
+			data: {postId: this.getAttribute('id')},
+			dataType: 'json',
+			success: function(data){
+				$('#list_likes_count'+t.getAttribute('id')).text(data.post_likes);
+				$('#grid_likes_count'+t.getAttribute('id')).text(data.post_likes);
+				var sign = $('#sign'+t.getAttribute('id'));
+				if(data.isLiked)
+				{
+					sign.html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16"><path d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/></svg>');
+				}
+				else
+				{
+					sign.html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>');	
+				}
+
+			}
+		});
+	});
+	</script>
+
+
+
+	<script type="text/javascript">
+	// Add Comments
+	var comment_btn = $('.comment_btn');
+	comment_btn.on('click', function(event){
+		event.preventDefault();
+		var t = this;
+		var comment_val = $('#comment_box'+t.getAttribute('id')).val();
+		var commentContainer = $('#comment_container'+t.getAttribute('id'));
+		var commentCount = $('#comment_count'+t.getAttribute('id'));
+
+		$.ajax({
+			type: 'GET',
+			url: '{% url "add_comment" %}',
+			data: {comment: comment_val, post_id: t.getAttribute('id')},
+			dataType: 'json',
+			success: function(data){
+
+				var comment_user = '<b>'+data.user+'</b>';
+				var comment_para = '<p>'+data.comment+'</p>';
+				commentContainer.prepend(comment_para);
+				commentContainer.prepend(comment_user);
+
+				commentCount.text(data.comment_count);
+				$('#grid_comments_count'+t.getAttribute('id')).text(data.comment_count);
+
+				$('#comment_form'+t.getAttribute('id')).trigger('reset');
+
+			}
+		});
+	});
+	</script>
+
+
+	<script type="text/javascript">
+	// Add Follower
+	var follow_btn = $('#follow_btn');
+	follow_btn.on('click', function(event){
+		event.preventDefault();
+		var f_count = $('#follower_count');
+		$.ajax({
+			type: 'GET',
+			url: '{% url "follow_user" %}',
+			data: {userId: '{{user_data.id}}'},
+			dataType: 'json',
+			success: function(data){
+				if(data.isFollowed)
+				{
+					follow_btn.text('Follow');
+					f_count.text(data.followers_count);
+				}
+				else
+				{
+					follow_btn.text('Unfollow');	
+					f_count.text(data.followers_count);
+				}
+
+			}
+		})
+	});
+	</script>
+
+
+	<script type="text/javascript">
+	//delete post ajax
+	var del_btn = $('.del_btn');
+	del_btn.on('click', function(e){
+		e.preventDefault();
+		var a = confirm('Would you like to delete this post?');
+		var t = this;
+		var post_id = t.getAttribute('id').slice(6);
+		if(a)
+		{
+			$.ajax({
+				type: 'GET',
+				url: '{% url "delete_post" %}',
+				data: {postId: post_id},
+				dataType: 'json',
+				success: function(data){
+					$('div').remove('#div'+data.id);
+					$('div').remove('#card'+data.id);
+				}
+			});
+		}
+	});
+	</script>
+
+	{% endblock %}
