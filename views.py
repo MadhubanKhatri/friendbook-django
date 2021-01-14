@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from .models import User, Post, Comment, Follower
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
-from django.core.exceptions import ObjectDoesNotExist
+
 
 # Create your views here.
 def index(request):
